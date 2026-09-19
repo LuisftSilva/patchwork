@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-19T17:33:52.364593+00:00",
+  "items": [
+    {
+      "metric_id": "demand_active_patients",
+      "metric_name": "Active medical cannabis patients",
+      "title": "Active medical cannabis patients — CZ",
+      "client_summary": "The cited official dataset remains the latest available reference for Active medical cannabis patients in CZ; no material change was identified in this reporting cycle.",
+      "geography": "CZ",
+      "source_url": "https://sukl.gov.cz/wp-content/uploads/2026/07/KLP_2026-06.xlsx",
+      "period_end": "2026-06-30",
+      "cadence": "monthly_or_quarterly"
+    },
+    {
+      "metric_id": "demand_active_patients",
+      "metric_name": "Active medical cannabis patients",
+      "title": "Active medical cannabis patients — IL",
+      "client_summary": "The cited official dataset remains the latest available reference for Active medical cannabis patients in IL; no material change was identified in this reporting cycle.",
+      "geography": "IL",
+      "source_url": "https://www.gov.il/BlobFolder/reports/licenses-status-may-2026/he/subjects_cannabis_docs_licenses-status-may-2026.pdf",
+      "period_end": "2026-05-31",
+      "cadence": "monthly_or_quarterly"
+    },
+    {
+      "metric_id": "demand_prescriptions",
+      "metric_name": "Prescriptions / items dispensed",
+      "title": "Prescriptions / items dispensed — CZ",
+      "client_summary": "The cited official dataset remains the latest available reference for Prescriptions / items dispensed in CZ; no material change was identified in this reporting cycle.",
+      "geography": "CZ",
+      "source_url": "https://sukl.gov.cz/wp-content/uploads/2026/07/KLP_2026-06.xlsx",
+      "period_end": "2026-06-30",
+      "cadence": "monthly_or_quarterly"
+    }
+  ]
+}
