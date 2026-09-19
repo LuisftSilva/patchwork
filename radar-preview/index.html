@@ -30,20 +30,35 @@
   </div>
   <script src="data.js"></script>
   <script>
-    (function () {
-      var status = document.getElementById('feedStatus');
-      var updated = window.RADAR_DATA && window.RADAR_DATA.meta && window.RADAR_DATA.meta.updated;
-      var parsed = updated ? Date.parse(updated) : NaN;
-      var age = Number.isFinite(parsed) ? Date.now() - parsed : Infinity;
-      var maxAge = 48 * 60 * 60 * 1000;
-      if (!Number.isFinite(parsed) || age > maxAge) {
-        status.innerHTML = '<strong>Historical preview — not current data.</strong> The validated live feed is unavailable or stale. Figures below are a dated snapshot and must not be treated as current intelligence.';
+    window.RADAR_PUBLIC_FEED = null;
+    window.RADAR_PUBLIC_FEED_READY = fetch('public-data/latest.json', {cache: 'no-store'})
+      .then(function (response) {
+        if (!response.ok) throw new Error('feed HTTP ' + response.status);
+        return response.json();
+      })
+      .then(function (feed) {
+        var allowed = ['metric_id','metric_name','title','client_summary','geography','source_url','period_end','cadence'];
+        var valid = feed && feed.schema_version === 1 && typeof feed.generated_at === 'string' && Array.isArray(feed.items) && feed.items.length > 0;
+        if (valid) {
+          valid = feed.items.every(function (item) {
+            var keys = Object.keys(item).sort();
+            return keys.length === allowed.length && allowed.every(function (key) { return keys.indexOf(key) !== -1; }) && /^https:\/\//.test(item.source_url);
+          });
+        }
+        var parsed = valid ? Date.parse(feed.generated_at) : NaN;
+        var age = Number.isFinite(parsed) ? Date.now() - parsed : Infinity;
+        if (!valid || age < 0 || age > 48 * 60 * 60 * 1000) throw new Error('feed invalid or stale');
+        window.RADAR_PUBLIC_FEED = feed;
+        document.documentElement.setAttribute('data-feed-state', 'current');
+        return feed;
+      })
+      .catch(function () {
+        var status = document.getElementById('feedStatus');
+        status.innerHTML = '<strong>Historical preview — not current data.</strong> The validated live feed is unavailable, invalid or stale. Figures below are a dated snapshot and must not be treated as current intelligence.';
         status.setAttribute('aria-hidden', 'false');
         document.documentElement.setAttribute('data-feed-state', 'stale');
-      } else {
-        document.documentElement.setAttribute('data-feed-state', 'current');
-      }
-    }());
+        return null;
+      });
   </script>
   <script src="app.js"></script>
   <script src="partner-network.js"></script>
