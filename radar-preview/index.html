@@ -18,7 +18,8 @@
     #liveFeedHeader span{color:#9fc2ad;font-size:12px}
     #liveFeedItems{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px}
     .live-feed-item{padding:10px 11px;border:1px solid rgba(120,190,150,.18);border-radius:9px;background:rgba(5,20,13,.5)}
-    .live-feed-item b{display:block;color:#edf8f1;margin-bottom:3px}
+    .live-feed-item h3{font-size:13px;line-height:1.35;margin:0 0 3px;color:#edf8f1}
+    .live-feed-meta{margin:0 0 6px!important;color:#91ad9a!important;font-size:11px;line-height:1.35}
     .live-feed-item p{margin:0 0 5px;color:#bdd2c4}
     .live-feed-item a{color:#9bd8b3;text-decoration:underline;text-underline-offset:2px}
     @media(max-width:640px){#liveFeed{margin:8px 10px 0;padding:11px}#liveFeedHeader{align-items:flex-start;flex-direction:column;gap:2px}#liveFeedItems{grid-template-columns:1fr}}
@@ -84,16 +85,22 @@
         feed.items.forEach(function (item) {
           var card = document.createElement('article');
           card.className = 'live-feed-item';
-          var title = document.createElement('b');
+          var title = document.createElement('h3');
           title.textContent = item.title;
+          var meta = document.createElement('p');
+          meta.className = 'live-feed-meta';
+          meta.textContent = item.geography + ' · ' + item.metric_name + ' · ' + item.cadence.replace(/_/g, ' ');
           var summary = document.createElement('p');
           summary.textContent = item.client_summary;
+          var sourceUrl = new URL(item.source_url);
           var source = document.createElement('a');
           source.href = item.source_url;
           source.target = '_blank';
           source.rel = 'noopener noreferrer';
-          source.textContent = 'Official source · ' + item.period_end;
+          source.textContent = 'Official source: ' + sourceUrl.hostname + ' · evidence period ' + item.period_end;
+          source.setAttribute('aria-label', 'Open official source for ' + item.title + ', evidence period ' + item.period_end);
           card.appendChild(title);
+          card.appendChild(meta);
           card.appendChild(summary);
           card.appendChild(source);
           items.appendChild(card);
