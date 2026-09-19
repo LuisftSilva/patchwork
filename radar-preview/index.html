@@ -12,6 +12,17 @@
     #feedStatus{display:none;padding:10px 16px;background:#2b2110;color:#fff3c4;border-bottom:1px solid #72551a;font:600 13px/1.45 system-ui,sans-serif}
     #feedStatus[aria-hidden="false"]{display:block}
     #feedStatus strong{color:#ffd978}
+    #liveFeed{display:none;margin:12px 18px 0;padding:14px 16px;border:1px solid rgba(120,190,150,.28);border-radius:12px;background:rgba(15,38,28,.72);font:13px/1.45 system-ui,sans-serif}
+    #liveFeed[aria-hidden="false"]{display:block}
+    #liveFeedHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+    #liveFeedHeader strong{font-size:14px;color:#d8f3e3}
+    #liveFeedHeader span{color:#9fc2ad;font-size:12px}
+    #liveFeedItems{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px}
+    .live-feed-item{padding:10px 11px;border:1px solid rgba(120,190,150,.18);border-radius:9px;background:rgba(5,20,13,.5)}
+    .live-feed-item b{display:block;color:#edf8f1;margin-bottom:3px}
+    .live-feed-item p{margin:0 0 5px;color:#bdd2c4}
+    .live-feed-item a{color:#9bd8b3;text-decoration:underline;text-underline-offset:2px}
+    @media(max-width:640px){#liveFeed{margin:8px 10px 0;padding:11px}#liveFeedHeader{align-items:flex-start;flex-direction:column;gap:2px}#liveFeedItems{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -21,6 +32,10 @@
     <div id="backdrop" class="backdrop" hidden></div>
     <section class="workspace">
       <header id="topbar" class="topbar"></header>
+      <section id="liveFeed" aria-label="Validated live intelligence" aria-hidden="true">
+        <div id="liveFeedHeader"><strong>Validated live intelligence</strong><span id="liveFeedFreshness"></span></div>
+        <div id="liveFeedItems"></div>
+      </section>
       <main id="main" class="main" tabindex="-1"></main>
     </section>
     <nav id="mobileNav" class="mobile-nav" aria-label="Mobile navigation"></nav>
@@ -50,12 +65,36 @@
         if (!valid || age < 0 || age > 48 * 60 * 60 * 1000) throw new Error('feed invalid or stale');
         window.RADAR_PUBLIC_FEED = feed;
         document.documentElement.setAttribute('data-feed-state', 'current');
+
+        var region = document.getElementById('liveFeed');
+        var items = document.getElementById('liveFeedItems');
+        var freshness = document.getElementById('liveFeedFreshness');
+        freshness.textContent = 'Updated ' + new Date(parsed).toLocaleString(undefined, {dateStyle:'medium', timeStyle:'short'}) + ' · ' + feed.items.length + ' verified updates';
+        feed.items.forEach(function (item) {
+          var card = document.createElement('article');
+          card.className = 'live-feed-item';
+          var title = document.createElement('b');
+          title.textContent = item.title;
+          var summary = document.createElement('p');
+          summary.textContent = item.client_summary;
+          var source = document.createElement('a');
+          source.href = item.source_url;
+          source.target = '_blank';
+          source.rel = 'noopener noreferrer';
+          source.textContent = 'Official source · ' + item.period_end;
+          card.appendChild(title);
+          card.appendChild(summary);
+          card.appendChild(source);
+          items.appendChild(card);
+        });
+        region.setAttribute('aria-hidden', 'false');
         return feed;
       })
       .catch(function () {
         var status = document.getElementById('feedStatus');
         status.innerHTML = '<strong>Historical preview — not current data.</strong> The validated live feed is unavailable, invalid or stale. Figures below are a dated snapshot and must not be treated as current intelligence.';
         status.setAttribute('aria-hidden', 'false');
+        document.getElementById('liveFeed').setAttribute('aria-hidden', 'true');
         document.documentElement.setAttribute('data-feed-state', 'stale');
         return null;
       });
