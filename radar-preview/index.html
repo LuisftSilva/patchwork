@@ -8,8 +8,14 @@
   <meta name="description" content="European medicinal cannabis intelligence — markets, companies, products, regulation and commercial opportunities in one workspace." />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="partner-network.css" />
+  <style>
+    #feedStatus{display:none;padding:10px 16px;background:#2b2110;color:#fff3c4;border-bottom:1px solid #72551a;font:600 13px/1.45 system-ui,sans-serif}
+    #feedStatus[aria-hidden="false"]{display:block}
+    #feedStatus strong{color:#ffd978}
+  </style>
 </head>
 <body>
+  <div id="feedStatus" role="status" aria-live="polite" aria-hidden="true"></div>
   <div id="app" class="app-shell">
     <aside id="sidebar" class="sidebar" aria-label="Primary navigation"></aside>
     <div id="backdrop" class="backdrop" hidden></div>
@@ -23,6 +29,22 @@
     <div id="toastRegion" class="toast-region" aria-live="polite"></div>
   </div>
   <script src="data.js"></script>
+  <script>
+    (function () {
+      var status = document.getElementById('feedStatus');
+      var updated = window.RADAR_DATA && window.RADAR_DATA.meta && window.RADAR_DATA.meta.updated;
+      var parsed = updated ? Date.parse(updated) : NaN;
+      var age = Number.isFinite(parsed) ? Date.now() - parsed : Infinity;
+      var maxAge = 48 * 60 * 60 * 1000;
+      if (!Number.isFinite(parsed) || age > maxAge) {
+        status.innerHTML = '<strong>Historical preview — not current data.</strong> The validated live feed is unavailable or stale. Figures below are a dated snapshot and must not be treated as current intelligence.';
+        status.setAttribute('aria-hidden', 'false');
+        document.documentElement.setAttribute('data-feed-state', 'stale');
+      } else {
+        document.documentElement.setAttribute('data-feed-state', 'current');
+      }
+    }());
+  </script>
   <script src="app.js"></script>
   <script src="partner-network.js"></script>
 </body>
