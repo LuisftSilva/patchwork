@@ -79,7 +79,7 @@
             if (typeof item.source_url !== 'string' || item.source_url.length > 2048) return false;
             try {
               var source = new URL(item.source_url);
-              if (source.protocol !== 'https:' || !source.hostname || source.username || source.password) return false;
+              if (source.protocol !== 'https:' || !source.hostname || source.username || source.password || /^(localhost|0\.0\.0\.0|127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|\[?::1\]?$)/i.test(source.hostname) || /\.(localhost|local|internal)$/i.test(source.hostname)) return false;
             } catch (error) { return false; }
             if (typeof item.period_end !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(item.period_end)) return false;
             var periodEnd = Date.parse(item.period_end + 'T00:00:00Z');
