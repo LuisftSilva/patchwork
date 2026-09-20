@@ -59,12 +59,14 @@
         return response.json().catch(function () { throw new Error('feed-invalid'); });
       })
       .then(function (feed) {
+        var envelopeAllowed = ['schema_version','generated_at','items'];
         var allowed = ['metric_id','metric_name','title','client_summary','geography','source_url','period_end','cadence'];
         var requiredText = ['metric_id','metric_name','title','client_summary','geography','cadence'];
         var seenObservations = Object.create(null);
         var now = Date.now();
         var todayUtc = new Date(now).toISOString().slice(0, 10);
-        var valid = feed && feed.schema_version === 1 && typeof feed.generated_at === 'string' && Array.isArray(feed.items) && feed.items.length > 0 && feed.items.length <= 250;
+        var envelopeKeys = feed && typeof feed === 'object' && !Array.isArray(feed) ? Object.keys(feed).sort() : [];
+        var valid = envelopeKeys.length === envelopeAllowed.length && envelopeAllowed.every(function (key) { return envelopeKeys.indexOf(key) !== -1; }) && feed.schema_version === 1 && typeof feed.generated_at === 'string' && Array.isArray(feed.items) && feed.items.length > 0 && feed.items.length <= 250;
         if (valid) {
           valid = feed.items.every(function (item) {
             if (!item || typeof item !== 'object' || Array.isArray(item)) return false;
