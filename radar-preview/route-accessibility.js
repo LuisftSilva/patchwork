@@ -41,7 +41,7 @@
 
   function harden(root = document) {
     root.querySelectorAll('[data-route]').forEach((el) => {
-      if (el.matches(interactive) || el.hasAttribute('data-route-a11y')) return;
+      if (el.matches(interactive) || el.querySelector(interactive) || el.hasAttribute('data-route-a11y')) return;
       el.setAttribute('data-route-a11y', 'true');
       el.setAttribute('role', 'link');
       el.setAttribute('tabindex', '0');
