@@ -93,7 +93,7 @@
         var region = document.getElementById('liveFeed');
         var items = document.getElementById('liveFeedItems');
         var freshness = document.getElementById('liveFeedFreshness');
-        freshness.textContent = 'Updated ' + new Date(parsed).toLocaleString(undefined, {dateStyle:'medium', timeStyle:'short'}) + ' · ' + feed.items.length + ' verified updates';
+        freshness.textContent = 'Feed refreshed ' + new Date(parsed).toLocaleString(undefined, {dateStyle:'medium', timeStyle:'short'}) + ' · ' + feed.items.length + ' verified updates';
         feed.items.forEach(function (item) {
           var card = document.createElement('article');
           card.className = 'live-feed-item';
@@ -101,7 +101,10 @@
           title.textContent = item.title;
           var meta = document.createElement('p');
           meta.className = 'live-feed-meta';
-          meta.textContent = item.geography + ' · ' + item.metric_name + ' · ' + item.cadence.replace(/_/g, ' ');
+          var evidenceMs = Date.parse(item.period_end + 'T23:59:59Z');
+          var evidenceAgeDays = Math.max(0, Math.floor((now - evidenceMs) / (24 * 60 * 60 * 1000)));
+          var evidenceAge = evidenceAgeDays === 0 ? 'evidence current today' : 'evidence ' + evidenceAgeDays + ' day' + (evidenceAgeDays === 1 ? '' : 's') + ' old';
+          meta.textContent = item.geography + ' · ' + item.metric_name + ' · ' + item.cadence.replace(/_/g, ' ') + ' · ' + evidenceAge;
           var summary = document.createElement('p');
           summary.textContent = item.client_summary;
           var sourceUrl = new URL(item.source_url);
