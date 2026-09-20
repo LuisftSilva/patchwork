@@ -7,6 +7,17 @@
     return text ? `Open ${text.slice(0, 160)}` : 'Open details';
   }
 
+  function focusMainAfterRoute() {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const main = document.getElementById('main');
+        if (!main) return;
+        main.focus({preventScroll: true});
+        main.scrollIntoView({block: 'start'});
+      });
+    });
+  }
+
   function syncCurrentNavigation(root = document) {
     root.querySelectorAll('.nav-item[aria-current="page"]').forEach((el) => {
       if (!el.classList.contains('active')) el.removeAttribute('aria-current');
@@ -27,6 +38,7 @@
         if (event.key !== 'Enter' && event.key !== ' ') return;
         event.preventDefault();
         el.click();
+        focusMainAfterRoute();
       });
     });
     syncCurrentNavigation(root === document ? document : (root.ownerDocument || document));
