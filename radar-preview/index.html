@@ -117,8 +117,9 @@
           source.href = item.source_url;
           source.target = '_blank';
           source.rel = 'noopener noreferrer';
-          source.textContent = 'Official source: ' + sourceUrl.hostname + ' · evidence period ' + item.period_end;
-          source.setAttribute('aria-label', 'Open official source for ' + item.title + ', evidence period ' + item.period_end);
+          source.referrerPolicy = 'no-referrer';
+          source.textContent = 'Official source: ' + sourceUrl.hostname + ' · evidence period ' + item.period_end + ' · opens in new tab';
+          source.setAttribute('aria-label', 'Open official source for ' + item.title + ', evidence period ' + item.period_end + ' (opens in new tab)');
           card.appendChild(title);
           card.appendChild(meta);
           card.appendChild(summary);
