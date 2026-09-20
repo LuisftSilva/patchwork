@@ -47,7 +47,7 @@
       el.setAttribute('tabindex', '0');
       if (!el.hasAttribute('aria-label')) el.setAttribute('aria-label', labelFor(el));
       el.addEventListener('keydown', (event) => {
-        if (event.key !== 'Enter' && event.key !== ' ') return;
+        if (event.key !== 'Enter') return;
         event.preventDefault();
         el.click();
         focusMainAfterRoute();
