@@ -60,7 +60,7 @@
       .then(function (feed) {
         var allowed = ['metric_id','metric_name','title','client_summary','geography','source_url','period_end','cadence'];
         var requiredText = ['metric_id','metric_name','title','client_summary','geography','cadence'];
-        var seenMetricIds = Object.create(null);
+        var seenObservations = Object.create(null);
         var now = Date.now();
         var valid = feed && feed.schema_version === 1 && typeof feed.generated_at === 'string' && Array.isArray(feed.items) && feed.items.length > 0 && feed.items.length <= 250;
         if (valid) {
@@ -69,8 +69,9 @@
             var keys = Object.keys(item).sort();
             if (keys.length !== allowed.length || !allowed.every(function (key) { return keys.indexOf(key) !== -1; })) return false;
             if (!requiredText.every(function (key) { return typeof item[key] === 'string' && item[key].trim().length > 0 && item[key].length <= 2000; })) return false;
-            if (seenMetricIds[item.metric_id]) return false;
-            seenMetricIds[item.metric_id] = true;
+            var observationKey = item.metric_id + '\u0000' + item.geography;
+            if (seenObservations[observationKey]) return false;
+            seenObservations[observationKey] = true;
             if (typeof item.source_url !== 'string' || item.source_url.length > 2048) return false;
             try {
               var source = new URL(item.source_url);
