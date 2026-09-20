@@ -52,10 +52,10 @@
     window.RADAR_PUBLIC_FEED = null;
     window.RADAR_PUBLIC_FEED_READY = fetch('public-data/latest.json', {cache: 'no-store'})
       .then(function (response) {
-        if (!response.ok) throw new Error('feed HTTP ' + response.status);
+        if (!response.ok) throw new Error('feed-unavailable');
         var contentType = response.headers.get('content-type') || '';
-        if (contentType && contentType.indexOf('json') === -1) throw new Error('feed content type');
-        return response.json();
+        if (contentType && contentType.indexOf('json') === -1) throw new Error('feed-invalid');
+        return response.json().catch(function () { throw new Error('feed-invalid'); });
       })
       .then(function (feed) {
         var allowed = ['metric_id','metric_name','title','client_summary','geography','source_url','period_end','cadence'];
@@ -84,9 +84,11 @@
             return true;
           });
         }
-        var parsed = valid ? Date.parse(feed.generated_at) : NaN;
+        if (!valid) throw new Error('feed-invalid');
+        var parsed = Date.parse(feed.generated_at);
         var age = Number.isFinite(parsed) ? now - parsed : Infinity;
-        if (!valid || age < 0 || age > 48 * 60 * 60 * 1000) throw new Error('feed invalid or stale');
+        if (!Number.isFinite(parsed) || age < 0) throw new Error('feed-invalid');
+        if (age > 48 * 60 * 60 * 1000) throw new Error('feed-stale');
         window.RADAR_PUBLIC_FEED = feed;
         document.documentElement.setAttribute('data-feed-state', 'current');
 
@@ -123,7 +125,7 @@
         region.setAttribute('aria-hidden', 'false');
         return feed;
       })
-      .catch(function () {
+      .catch(function (error) {
         window.RADAR_PUBLIC_FEED = null;
         var status = document.getElementById('feedStatus');
         var snapshot = window.RADAR_DATA && window.RADAR_DATA.meta ? window.RADAR_DATA.meta.updated : null;
@@ -133,7 +135,10 @@
           var snapshotAgeDays = Math.max(0, Math.floor((Date.now() - snapshotMs) / (24 * 60 * 60 * 1000)));
           snapshotDetail = ' Snapshot dated ' + new Date(snapshotMs).toLocaleString(undefined, {dateStyle:'medium', timeStyle:'short'}) + ' (' + snapshotAgeDays + ' day' + (snapshotAgeDays === 1 ? '' : 's') + ' old).';
         }
-        status.innerHTML = '<strong>Historical preview — not current data.</strong> The validated live feed is unavailable, invalid or stale.' + snapshotDetail + ' Figures below are historical context only and must not be treated as current intelligence.';
+        var reason = 'The validated live feed could not be retrieved.';
+        if (error && error.message === 'feed-stale') reason = 'The validated live feed is older than the 48-hour freshness limit.';
+        if (error && error.message === 'feed-invalid') reason = 'The validated live feed failed integrity, provenance or schema checks.';
+        status.innerHTML = '<strong>Historical preview — not current data.</strong> ' + reason + snapshotDetail + ' Figures below are historical context only and must not be treated as current intelligence.';
         status.setAttribute('aria-hidden', 'false');
         document.getElementById('liveFeed').setAttribute('aria-hidden', 'true');
         document.documentElement.setAttribute('data-feed-state', 'stale');
