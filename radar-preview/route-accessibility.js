@@ -19,10 +19,22 @@
   }
 
   function syncCurrentNavigation(root = document) {
-    root.querySelectorAll('.nav-item[aria-current="page"]').forEach((el) => {
-      if (!el.classList.contains('active')) el.removeAttribute('aria-current');
+    const doc = root === document ? document : (root.ownerDocument || document);
+    doc.querySelectorAll('.nav-item[aria-current="page"], #mobileNav [aria-current="page"]').forEach((el) => {
+      el.removeAttribute('aria-current');
     });
-    root.querySelectorAll('.nav-item.active').forEach((el) => {
+
+    const activeDesktop = doc.querySelector('.nav-item.active[data-route]');
+    if (activeDesktop) {
+      activeDesktop.setAttribute('aria-current', 'page');
+      const route = activeDesktop.getAttribute('data-route');
+      doc.querySelectorAll('#mobileNav [data-route]').forEach((el) => {
+        if (el.getAttribute('data-route') === route) el.setAttribute('aria-current', 'page');
+      });
+      return;
+    }
+
+    doc.querySelectorAll('.nav-item.active').forEach((el) => {
       el.setAttribute('aria-current', 'page');
     });
   }
@@ -48,14 +60,14 @@
   new MutationObserver((mutations) => {
     let navigationMayHaveChanged = false;
     for (const mutation of mutations) {
-      if (mutation.type === 'attributes' && mutation.target.classList?.contains('nav-item')) {
+      if (mutation.type === 'attributes' && (mutation.target.classList?.contains('nav-item') || mutation.target.closest?.('#mobileNav'))) {
         navigationMayHaveChanged = true;
       }
       for (const node of mutation.addedNodes) {
         if (!(node instanceof Element)) continue;
         if (node.matches('[data-route]')) harden(node.parentElement || document);
         else if (node.querySelector('[data-route]')) harden(node);
-        if (node.matches('.nav-item') || node.querySelector('.nav-item')) navigationMayHaveChanged = true;
+        if (node.matches('.nav-item, #mobileNav, #mobileNav *') || node.querySelector('.nav-item, #mobileNav [data-route]')) navigationMayHaveChanged = true;
       }
     }
     if (navigationMayHaveChanged) syncCurrentNavigation();
