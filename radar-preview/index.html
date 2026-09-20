@@ -122,7 +122,14 @@
       .catch(function () {
         window.RADAR_PUBLIC_FEED = null;
         var status = document.getElementById('feedStatus');
-        status.innerHTML = '<strong>Historical preview — not current data.</strong> The validated live feed is unavailable, invalid or stale. Figures below are a dated snapshot and must not be treated as current intelligence.';
+        var snapshot = window.RADAR_DATA && window.RADAR_DATA.meta ? window.RADAR_DATA.meta.updated : null;
+        var snapshotMs = typeof snapshot === 'string' ? Date.parse(snapshot) : NaN;
+        var snapshotDetail = '';
+        if (Number.isFinite(snapshotMs)) {
+          var snapshotAgeDays = Math.max(0, Math.floor((Date.now() - snapshotMs) / (24 * 60 * 60 * 1000)));
+          snapshotDetail = ' Snapshot dated ' + new Date(snapshotMs).toLocaleString(undefined, {dateStyle:'medium', timeStyle:'short'}) + ' (' + snapshotAgeDays + ' day' + (snapshotAgeDays === 1 ? '' : 's') + ' old).';
+        }
+        status.innerHTML = '<strong>Historical preview — not current data.</strong> The validated live feed is unavailable, invalid or stale.' + snapshotDetail + ' Figures below are historical context only and must not be treated as current intelligence.';
         status.setAttribute('aria-hidden', 'false');
         document.getElementById('liveFeed').setAttribute('aria-hidden', 'true');
         document.documentElement.setAttribute('data-feed-state', 'stale');
