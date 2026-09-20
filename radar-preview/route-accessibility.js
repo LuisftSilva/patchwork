@@ -1,5 +1,5 @@
 (() => {
-  const interactive = 'a,button,input,select,textarea,summary,[contenteditable="true"]';
+  const interactive = 'a,button,input,select,textarea,summary,[contenteditable="true"],[role="button"],[role="link"]';
 
   function labelFor(el) {
     const heading = el.querySelector('h1,h2,h3,h4,strong');
