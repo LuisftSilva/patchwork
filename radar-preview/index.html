@@ -9,6 +9,9 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="partner-network.css" />
   <style>
+    .skip-link{position:fixed;left:12px;top:8px;z-index:10000;transform:translateY(-160%);padding:9px 12px;border-radius:7px;background:#fff;color:#07110d;font:700 13px/1 system-ui,sans-serif;box-shadow:0 2px 12px rgba(0,0,0,.35)}
+    .skip-link:focus{transform:translateY(0);outline:3px solid #7fd5a3;outline-offset:2px}
+    :focus-visible{outline:2px solid #9bd8b3;outline-offset:3px}
     #feedStatus{display:none;padding:10px 16px;background:#2b2110;color:#fff3c4;border-bottom:1px solid #72551a;font:600 13px/1.45 system-ui,sans-serif}
     #feedStatus[aria-hidden="false"]{display:block}
     #liveFeed{display:none;margin:12px 18px 0;padding:14px 16px;border:1px solid rgba(120,190,150,.28);border-radius:12px;background:rgba(15,38,28,.72);font:13px/1.45 system-ui,sans-serif}
@@ -26,14 +29,15 @@
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to main content</a>
   <div id="feedStatus" role="status" aria-live="polite" aria-hidden="true"></div>
   <div id="app" class="app-shell">
     <aside id="sidebar" class="sidebar" aria-label="Primary navigation"></aside>
     <div id="backdrop" class="backdrop" hidden></div>
     <section class="workspace">
       <header id="topbar" class="topbar"></header>
-      <section id="liveFeed" aria-label="Validated live intelligence" aria-hidden="true">
-        <div id="liveFeedHeader"><strong>Validated live intelligence</strong><span id="liveFeedFreshness"></span></div>
+      <section id="liveFeed" role="region" aria-labelledby="liveFeedTitle" aria-hidden="true">
+        <div id="liveFeedHeader"><strong id="liveFeedTitle">Validated live intelligence</strong><span id="liveFeedFreshness"></span></div>
         <div id="liveFeedItems"></div>
       </section>
       <main id="main" class="main" tabindex="-1"></main>
