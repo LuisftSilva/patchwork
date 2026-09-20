@@ -14,6 +14,7 @@
     :focus-visible{outline:2px solid #9bd8b3;outline-offset:3px}
     #feedStatus{display:none;padding:10px 16px;background:#2b2110;color:#fff3c4;border-bottom:1px solid #72551a;font:600 13px/1.45 system-ui,sans-serif}
     #feedStatus[aria-hidden="false"]{display:block}
+    #feedStatus .feed-retry{margin-left:10px;padding:5px 9px;border:1px solid #c8a95b;border-radius:6px;background:transparent;color:#fff3c4;font:700 12px/1 system-ui,sans-serif;cursor:pointer}
     #liveFeed{display:none;margin:12px 18px 0;padding:14px 16px;border:1px solid rgba(120,190,150,.28);border-radius:12px;background:rgba(15,38,28,.72);font:13px/1.45 system-ui,sans-serif}
     #liveFeed[aria-hidden="false"]{display:block}
     #liveFeedHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
@@ -70,7 +71,7 @@
             var keys = Object.keys(item).sort();
             if (keys.length !== allowed.length || !allowed.every(function (key) { return keys.indexOf(key) !== -1; })) return false;
             if (!requiredText.every(function (key) { return typeof item[key] === 'string' && item[key].trim().length > 0 && item[key].length <= 2000; })) return false;
-            var observationKey = item.metric_id + '\u0000' + item.geography;
+            var observationKey = item.metric_id + '^@' + item.geography;
             if (seenObservations[observationKey]) return false;
             seenObservations[observationKey] = true;
             if (typeof item.source_url !== 'string' || item.source_url.length > 2048) return false;
@@ -138,7 +139,9 @@
         var reason = 'The validated live feed could not be retrieved.';
         if (error && error.message === 'feed-stale') reason = 'The validated live feed is older than the 48-hour freshness limit.';
         if (error && error.message === 'feed-invalid') reason = 'The validated live feed failed integrity, provenance or schema checks.';
-        status.innerHTML = '<strong>Historical preview — not current data.</strong> ' + reason + snapshotDetail + ' Figures below are historical context only and must not be treated as current intelligence.';
+        status.innerHTML = '<strong>Historical preview — not current data.</strong> ' + reason + snapshotDetail + ' Figures below are historical context only and must not be treated as current intelligence. <button type="button" class="feed-retry">Retry live feed</button>';
+        var retry = status.querySelector('.feed-retry');
+        if (retry) retry.addEventListener('click', function () { window.location.reload(); });
         status.setAttribute('aria-hidden', 'false');
         document.getElementById('liveFeed').setAttribute('aria-hidden', 'true');
         document.documentElement.setAttribute('data-feed-state', 'stale');
